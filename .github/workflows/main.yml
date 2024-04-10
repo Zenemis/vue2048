@@ -1,0 +1,66 @@
+name: Lab 9 - CI/CD Pipeline via GitHub Actions
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+
+      - name: Install dependencies
+        run: |
+          npm install -g corepack
+          corepack prepare pnpm@latest-8 --activate
+          pnpm config set store-dir .pnpm-store
+          pnpm install
+
+      - name: Build
+        run: pnpm build
+
+      - name: Upload artifact
+        if: github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist/
+      
+  tests-job:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 'latest'
+
+      - name: Install dependencies
+        run: |
+          npm install -g corepack
+          corepack prepare pnpm@latest-8 --activate
+          pnpm config set store-dir .pnpm-store
+          pnpm install
+
+      - name: Run static typing analysis
+        run: pnpm type-check
+
+      - name: Run linting analysis
+        run: pnpm lint
+
+      - name : Run unit tests
+        run: pnpm test
+
