@@ -2,9 +2,15 @@ name: Lab 9 - CI/CD Pipeline via GitHub Actions
 
 on:
   push:
+    paths:
+      - '**'
+      - '!docs/**'
     branches:
       - main
   pull_request:
+    paths:
+      - '**'
+      - '!docs/**'
   workflow_dispatch:
     inputs:
       run_static_analysis:
@@ -15,11 +21,14 @@ on:
         description: 'Run tests?'
         default: 'true'
         required: true
+  schedule:
+    - cron: "0 8 * * 1" 
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request' || 
+      github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     
     steps:
       - name: Checkout code
@@ -62,7 +71,7 @@ jobs:
             
   tests-job:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch')
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
 
     steps:
       - name: Checkout code
