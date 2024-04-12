@@ -1,0 +1,2 @@
+Ceci est de la documentation
+Le workflow github ne doit pas se lancer sur modification seule de ce fichier
