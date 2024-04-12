@@ -49,9 +49,17 @@ jobs:
         with:
           name: dist
           path: dist/
-          retention-days: 7  # Retention for artifacts from main branch is one week
-
+          retention-days: 7  
+          
+      - name: Upload artifact
+        if: github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist/
+          retention-days: 1
       
+            
   tests-job:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch')
