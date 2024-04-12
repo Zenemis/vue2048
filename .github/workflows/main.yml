@@ -6,6 +6,15 @@ on:
       - main
   pull_request:
   workflow_dispatch:
+    inputs:
+      run_static_analysis:
+        description: 'Run static analysis?'
+        default: 'true'
+        required: true
+      run_tests:
+        description: 'Run tests?'
+        default: 'true'
+        required: true
 
 jobs:
   build:
@@ -40,11 +49,17 @@ jobs:
         with:
           name: dist
           path: dist/
-      
+          retention-days: 7  # Retention for artifacts from main branch is one week
+
       
   tests-job:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: |
+      github.event_name == 'pull_request' || 
+      (github.event_name == 'workflow_dispatch' && 
+        ${{ github.event.inputs.run_static_analysis }} == 'true' && 
+        ${{ github.event.inputs.run_tests }} == 'true')
+        
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -65,12 +80,15 @@ jobs:
           pnpm install
 
       - name: Run static typing analysis
+        if: ${{ github.event.inputs.run_static_analysis }} == 'true'
         run: pnpm type-check
 
       - name: Run linting analysis
+        if: ${{ github.event.inputs.run_static_analysis }} == 'true'
         run: pnpm lint
 
       - name : Run unit tests
+        if: ${{ github.event.inputs.run_tests }} == 'true'
         run: pnpm test
 
   deploy_qa:
@@ -138,3 +156,4 @@ jobs:
       - name: Deploy to Production
         run: pnpm dlx vercel deploy --prod --cwd dist/ --token=${{ secrets.VERCEL_ID }}
         # pnpm dlx @azure/static-web-apps-cli deploy ./dist --app-name stapp-vue2048-prod --env=production
+
