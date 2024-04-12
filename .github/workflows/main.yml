@@ -35,11 +35,12 @@ jobs:
         run: pnpm build
 
       - name: Upload artifact
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v2
         with:
           name: dist
           path: dist/
+      
       
   tests-job:
     runs-on: ubuntu-latest
@@ -137,5 +138,3 @@ jobs:
       - name: Deploy to Production
         run: pnpm dlx vercel deploy --prod --cwd dist/ --token=${{ secrets.VERCEL_ID }}
         # pnpm dlx @azure/static-web-apps-cli deploy ./dist --app-name stapp-vue2048-prod --env=production
-
-# test update to main
