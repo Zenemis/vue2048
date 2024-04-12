@@ -76,15 +76,15 @@ jobs:
           pnpm install
 
       - name: Run static typing analysis
-        if: (github.event_name != 'workflow_dispatch') && github.event.inputs.run_static_analysis == 'true'
+        if: (github.event_name != 'workflow_dispatch') || github.event.inputs.run_static_analysis == 'true'
         run: pnpm type-check
 
       - name: Run linting analysis
-        if: (github.event_name != 'workflow_dispatch') && github.event.inputs.run_static_analysis == 'true'
+        if: (github.event_name != 'workflow_dispatch') || github.event.inputs.run_static_analysis == 'true'
         run: pnpm lint
 
       - name : Run unit tests
-        if: (github.event_name != 'workflow_dispatch') && github.event.inputs.run_tests == 'true'
+        if: (github.event_name != 'workflow_dispatch') || github.event.inputs.run_tests == 'true'
         run: pnpm test
 
   deploy_qa:
