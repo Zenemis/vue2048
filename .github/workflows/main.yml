@@ -16,12 +16,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: dist
-          path: dist
-
       - name : Install pnpm
         uses: pnpm/action-setup@v3
         with:
@@ -53,12 +47,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: dist
-          path: dist
 
       - name : Install pnpm
         uses: pnpm/action-setup@v3
@@ -92,6 +80,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
+
       - name : Install pnpm
         uses: pnpm/action-setup@v3
         with:
@@ -118,6 +112,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
 
       - name : Install pnpm
         uses: pnpm/action-setup@v3
