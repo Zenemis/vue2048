@@ -184,6 +184,15 @@ jobs:
         uses: pnpm/action-setup@v3
         with:
           version: latest
+        
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
 
       - name: Get PR number & Set up resource names
         run: |
