@@ -135,7 +135,7 @@ jobs:
 
       - name: Deploy to QA
         run: pnpm dlx vercel deploy --cwd dist/ --token=${{ secrets.VERCEL_ID }}
-        # pnpm dlx @azure/static-web-apps-cli deploy ./dist --app-name stapp-vue2048-qa --env=production
+        # pnpm dlx @azure/static-web-apps-cli deploy ./dist --app-name stapp-vue2048-qa --env=qa
       
   deploy_prod:
     runs-on: ubuntu-latest
@@ -170,3 +170,82 @@ jobs:
         run: pnpm dlx vercel deploy --prod --cwd dist/ --token=${{ secrets.VERCEL_ID }}
         # pnpm dlx @azure/static-web-apps-cli deploy ./dist --app-name stapp-vue2048-prod --env=production
 
+  create_tmp_env_PR:
+    runs-on: ubuntu-latest
+    needs: [build]
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
+    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'tmp_env')
+    steps:
+      - name: Set up Azure CLI
+        run: |
+          az login --tenant ${{ secrets.AZURE_TENANT_ID }}
+          az account set -s ${{ secrets.AZURE_SUB_ID }}
+
+      - name : Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: latest
+        
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
+
+      - name: Get PR number & Set up resource names
+        run: |
+          echo "RESOURCE_GROUP=rg-vue2048-pr_${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+          echo "WEB_APP=stapp-vue2048-pr_${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+
+      - name: Create temporary environment
+        run: |
+          az group create --name ${{ env.RESOURCE_GROUP }} --location westeurope
+          az staticwebapp create --name ${{ env.WEB_APP }} --resource-group ${{ env.RESOURCE_GROUP }}
+
+      - name: Deploy build to temporary environment
+        run : |
+          pnpm dlx @azure/static-web-apps-cli deploy ./dist --app-name ${{ env.WEB_APP }} --env=production
+          echo "APP_URL=https://$(az staticwebapp show --name ${{ env.WEB_APP }} --query 'defaultHostname' | tr -d '"')" >> $GITHUB_ENV
+
+      - name: Post environment URL to PR comment
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body "The temporary environment URL is: ${{ env.APP_URL }}"
+
+      
+  destroy_tmp_env_PR:
+    runs-on: ubuntu-latest
+    needs: [create_tmp_env_PR]
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    steps:
+      - name: Set up Azure CLI
+        run: |
+          az login --tenant ${{ secrets.AZURE_TENANT_ID }}
+          az account set -s ${{ secrets.AZURE_SUB_ID }}
+
+      - name: Get PR number
+        id: pr_number
+        run: echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+
+      - name: Set up resource names
+        id: set_up_names
+        run: |
+          echo "RESOURCE_GROUP=pr-resource-group-pr${{ env.PR_NUMBER }}" >> $GITHUB_ENV
+          echo "WEB_APP=pr-web-app-pr${{ env.PR_NUMBER }}" >> $GITHUB_ENV
+
+      - name: Destroy temporary environment
+        run: |
+          az group delete --name ${{ env.RESOURCE_GROUP }} --yes --no-wait
+
+
+# Les essentiels : check
+# Les petits plus : check
+# Pour aller plus loin :
