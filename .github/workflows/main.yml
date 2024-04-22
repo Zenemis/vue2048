@@ -211,14 +211,14 @@ jobs:
       - name: Deploy build to temporary environment
         run : |
           pnpm dlx @azure/static-web-apps-cli deploy ./dist --app-name ${{ env.WEB_APP }}
-          echo "APP_URL=az staticwebapp show --name ${{ env.WEB_APP }} --query 'defaultHostname'" >> $GITHUB_ENV
+          echo "APP_URL=https://$(az staticwebapp show --name ${{ env.WEB_APP }} --query 'defaultHostname')" >> $GITHUB_ENV
 
       - name: Post environment URL to PR comment
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
-          gh pr comment ${{ github.event.pull_request.number }} --body "The temporary environment URL is: https://${{ env.APP_URL }}"
+          gh pr comment ${{ github.event.pull_request.number }} --body "The temporary environment URL is: ${{ env.APP_URL }}"
 
       
   destroy_tmp_env_PR:
