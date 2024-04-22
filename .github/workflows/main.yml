@@ -176,9 +176,9 @@ jobs:
     if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'tmp_env')
     steps:
       - name: Set up Azure CLI
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_TENANT_ID }}
+        run: |
+          az login --tenant ${{ secrets.AZURE_TENANT_ID }}
+          az account set -s ${{ secrets.AZURE_SUB_ID }}
 
       - name: Get PR number & Set up resource names
         run: |
@@ -208,9 +208,9 @@ jobs:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     steps:
       - name: Set up Azure CLI
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+        run: |
+          az login --tenant ${{ secrets.AZURE_TENANT_ID }}
+          az account set -s ${{ secrets.AZURE_SUB_ID }}
 
       - name: Get PR number
         id: pr_number
