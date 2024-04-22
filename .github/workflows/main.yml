@@ -180,6 +180,11 @@ jobs:
           az login --tenant ${{ secrets.AZURE_TENANT_ID }}
           az account set -s ${{ secrets.AZURE_SUB_ID }}
 
+      - name : Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: latest
+
       - name: Get PR number & Set up resource names
         run: |
           echo "RESOURCE_GROUP=rg-vue2048-pr_${{ github.event.pull_request.number }}" >> $GITHUB_ENV
