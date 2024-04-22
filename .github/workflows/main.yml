@@ -135,7 +135,7 @@ jobs:
 
       - name: Deploy to QA
         run: pnpm dlx vercel deploy --cwd dist/ --token=${{ secrets.VERCEL_ID }}
-        # pnpm dlx @azure/static-web-apps-cli deploy ./dist --app-name stapp-vue2048-qa --env=production
+        # pnpm dlx @azure/static-web-apps-cli deploy ./dist --app-name stapp-vue2048-qa --env=qa
       
   deploy_prod:
     runs-on: ubuntu-latest
@@ -189,8 +189,7 @@ jobs:
         run: |
           az group create --name ${{ env.RESOURCE_GROUP }} --location westeurope
           az staticwebapp create --name ${{ env.WEB_APP }} --resource-group ${{ env.RESOURCE_GROUP }}
-          az staticwebapp secrets list -n ${{ env.WEB_APP }} --query "properties.apiKey"
-          az staticwebapp list --query "[].name"
+          pnpm dlx @azure/static-web-apps-cli deploy ./dist --app-name ${{ env.WEB_APP }}
 
       - name: Deploy build to temporary environment
         run : |
