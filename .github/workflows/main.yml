@@ -194,11 +194,10 @@ jobs:
         run: |
           az group create --name ${{ env.RESOURCE_GROUP }} --location westeurope
           az staticwebapp create --name ${{ env.WEB_APP }} --resource-group ${{ env.RESOURCE_GROUP }}
-          pnpm dlx @azure/static-web-apps-cli deploy ./dist --app-name ${{ env.WEB_APP }}
 
       - name: Deploy build to temporary environment
         run : |
-          az staticwebapp deploy --name ${{ env.WEB_APP }} --src-path ./dist --token ${{ env.AZURE_STAPP_TOKEN }}
+          pnpm dlx @azure/static-web-apps-cli deploy ./dist --app-name ${{ env.WEB_APP }}
 
       - name: Post environment URL to PR comment
         run: |
