@@ -209,6 +209,9 @@ jobs:
           pnpm dlx @azure/static-web-apps-cli deploy ./dist --app-name ${{ env.WEB_APP }}
 
       - name: Post environment URL to PR comment
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
           gh pr comment ${{ github.event.pull_request.number }} --body "The temporary environment URL is: https://${{ env.WEB_APP }}.azurestaticapps.net"
 
