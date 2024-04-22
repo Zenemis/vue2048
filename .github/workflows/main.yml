@@ -182,9 +182,8 @@ jobs:
 
       - name: Get PR number & Set up resource names
         run: |
-          echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
-          echo "RESOURCE_GROUP=rg-vue2048-pr_${{ env.PR_NUMBER }}" >> $GITHUB_ENV
-          echo "WEB_APP=stapp-vu2048-pr_${{ env.PR_NUMBER }}" >> $GITHUB_ENV
+          echo "RESOURCE_GROUP=rg-vue2048-pr_${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+          echo "WEB_APP=stapp-vue2048-pr_${{ github.event.pull_request.number }}" >> $GITHUB_ENV
 
       - name: Create temporary environment
         run: |
