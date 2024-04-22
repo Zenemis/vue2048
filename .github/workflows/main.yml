@@ -189,8 +189,8 @@ jobs:
         run: |
           az group create --name ${{ env.RESOURCE_GROUP }} --location westeurope
           az staticwebapp create --name ${{ env.WEB_APP }} --resource-group ${{ env.RESOURCE_GROUP }}
-          AZURE_STAPP_TOKEN=$(az staticwebapp secrets list -n ${{ env.WEB_APP }} --query "properties.apiKey" -o tsv)
-          echo "AZURE_STAPP_TOKEN=$AZURE_STAPP_TOKEN" >> $GITHUB_ENV
+          az staticwebapp secrets list -n ${{ env.WEB_APP }} --query "properties.apiKey"
+          az staticwebapp list --query "[].name"
 
       - name: Deploy build to temporary environment
         run : |
