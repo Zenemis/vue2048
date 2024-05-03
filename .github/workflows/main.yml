@@ -247,4 +247,4 @@ jobs:
 
 # Les essentiels : check
 # Les petits plus : check
-# Pour aller plus loin :
+# Pour aller plus loin : environnement temporaire (pas release auto)
